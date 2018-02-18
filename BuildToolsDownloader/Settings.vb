@@ -1,6 +1,11 @@
 ﻿Imports System.IO
 Imports Newtonsoft.Json
 
+Public Enum FileOption
+    XML
+    JSON
+End Enum
+
 Public Class Settings
     Public Property BuildInfo As Uri
     Public Property BuildTools As Uri
@@ -17,9 +22,10 @@ Public Class Settings
     Public Property AlwaysCheckForNewBuild As Boolean
     Public Property BuildLog As String
     Public Property TimeToReload As Integer
+    Public Property BuildFileType As FileOption
 
     Public Sub Save(ByVal FilePath As String)
-        Dim JsonSettings As String = JsonConvert.SerializeObject(Me)
+        Dim JsonSettings As String = JsonConvert.SerializeObject(Me, Formatting.Indented)
         Using Writer As New StreamWriter(FilePath)
             Writer.Write(JsonSettings)
             Writer.Flush()
