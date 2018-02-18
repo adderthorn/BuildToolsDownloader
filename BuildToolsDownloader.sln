@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "BuildToolsDownloader", "BuildToolsDownloader\BuildToolsDownloader.vbproj", "{6C3F11E4-9F29-4800-9E32-2000393706BC}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "UpdateInfo", "UpdateInfo\UpdateInfo.vbproj", "{6D0B0714-E4D1-4576-B26B-D3FE78BFF2FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{6C3F11E4-9F29-4800-9E32-2000393706BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C3F11E4-9F29-4800-9E32-2000393706BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C3F11E4-9F29-4800-9E32-2000393706BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D0B0714-E4D1-4576-B26B-D3FE78BFF2FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D0B0714-E4D1-4576-B26B-D3FE78BFF2FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D0B0714-E4D1-4576-B26B-D3FE78BFF2FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D0B0714-E4D1-4576-B26B-D3FE78BFF2FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
