@@ -1,16 +1,18 @@
-Imports System
+Option Strict On
+
 Imports System.Net
 Imports System.IO
 Imports System.Threading
 Imports System.ComponentModel
 Imports System.Xml
 Imports System.Xml.Serialization
-Imports UpdateInfo
 
 Module Program
 #Region "Constants"
     Private Const DEFAULT_TIMEOUT As Integer = 20 'In seconds
     Private Const SETTINGS_FILE = "Settings.json"
+    Private Const SPIGOT_PATTERN = "spigot*.jar"
+    Private Const BUILD_TOOLS_NAME = "BuildTools.jar"
 #End Region
 
 #Region "Global Variables"
@@ -21,7 +23,7 @@ Module Program
     Friend BuildLog As String
 #End Region
 
-    Sub Main(args As String())
+    Function Main(args As String()) As Integer
         Console.WriteLine("Welcome to BuildTools Downloader!")
         Console.WriteLine("Application Version: {0}", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString())
         'Pull information from the app config file
@@ -47,23 +49,23 @@ Main:
         Dim CurrentSHA1 As String = BuildInfoReader.ReadElementContentAsString().ToUpper()
         BuildInfoReader.Close()
         Console.WriteLine("Build installed is: {0}, latest build is: {1}", MySettings.CurrentBuild, CurrentBuild)
-        If MySettings.CurrentBuild = CurrentBuild And Not ForceUpdate Then
+        If MySettings.CurrentBuild.ToString() = CurrentBuild And Not ForceUpdate Then
             Console.WriteLine("Build is the same...")
             If MySettings.StartMinecraft Then
                 GoTo Begin
             Else
-                Return
+                Return 0
             End If
         End If
-        If File.Exists("BuildTools.jar") Then
-            File.Delete("BuildTools.jar")
+        If File.Exists(BUILD_TOOLS_NAME) Then
+            File.Delete(BUILD_TOOLS_NAME)
             Console.WriteLine("removing current build...")
         End If
-        Console.WriteLine("Downloading BuildTools.jar")
+        Console.WriteLine("Downloading {0}", BUILD_TOOLS_NAME)
         Dim Fetcher As New WebClient()
         AddHandler Fetcher.DownloadProgressChanged, AddressOf Fetcher_DownloadProgressChanged
         AddHandler Fetcher.DownloadFileCompleted, AddressOf Fetcher_DownloadComplete
-        Fetcher.DownloadFileAsync(MySettings.BuildTools, "BuildTools.jar")
+        Fetcher.DownloadFileAsync(MySettings.BuildTools, BUILD_TOOLS_NAME)
         Wait.WaitOne()
         Dim FolderName As String = MySettings.BuildFolderFormat
         FolderName = FolderName.Replace("[build]", CurrentBuild).Replace("[date]", DateTime.Now.ToString("yyyyMMdd"))
@@ -87,44 +89,53 @@ Main:
             MySettings.CurrentBuildFolder = FolderName
             MySettings.Save(SETTINGS_FILE)
         End If
-        Dim NewBuildToolsPath As String = Path.Combine(FolderName, "BuildTools.jar") 'String.Format("{0}\{1}", FolderName, "BuildTools.jar")
+        Dim NewBuildToolsPath As String = Path.Combine(FolderName, BUILD_TOOLS_NAME) 'String.Format("{0}\{1}", FolderName, BUILD_TOOLS_NAME)
         If File.Exists(NewBuildToolsPath) Then
             File.Delete(NewBuildToolsPath)
         End If
-        File.Move("BuildTools.jar", NewBuildToolsPath)
+        File.Move(BUILD_TOOLS_NAME, NewBuildToolsPath)
         Console.WriteLine("Executing Build Tools from Bash...")
-        Dim BashStartInfo As New ProcessStartInfo()
-        BashStartInfo.CreateNoWindow = False
-        BashStartInfo.UseShellExecute = False
-        BashStartInfo.FileName = MySettings.Bash
-        BashStartInfo.WorkingDirectory = FolderName
-        BashStartInfo.WindowStyle = ProcessWindowStyle.Normal
+        Dim BashStartInfo As New ProcessStartInfo() With {
+            .CreateNoWindow = False,
+            .UseShellExecute = False,
+            .FileName = MySettings.Bash,
+            .WorkingDirectory = FolderName,
+            .WindowStyle = ProcessWindowStyle.Normal
+        }
         Dim ExtraArgs As String = MySettings.BuildToolsArguments
+        If Not ExtraArgs.StartsWith(CChar(" ")) Then
+            ExtraArgs = " " & ExtraArgs
+        End If
         BashStartInfo.Arguments = String.Format("--login -i -c ""java -jar """"{0}""""{1}""", NewBuildToolsPath, ExtraArgs)
         Using BashProcess As Process = Process.Start(BashStartInfo)
             BashProcess.WaitForExit()
             Console.WriteLine("Build exited with code: {0}", BashProcess.ExitCode.ToString())
         End Using
         Console.WriteLine("Complete! Setting new build version")
-        MySettings.CurrentBuild = CurrentBuild
+        MySettings.CurrentBuild = CInt(CurrentBuild)
         MySettings.Save(SETTINGS_FILE)
 Copy:
         Dim FinalFolderName As String = MySettings.CurrentBuildFolder
         Console.WriteLine("Attemping to copy file to Minecraft directory...")
         Dim MCDirInfo As New DirectoryInfo(FinalFolderName)
-        Dim SpigotFile As String = MCDirInfo.GetFiles("spigot*.jar").FirstOrDefault().Name
+        If MCDirInfo.EnumerateFiles(SPIGOT_PATTERN, SearchOption.TopDirectoryOnly).Count < 1 Then
+            Console.WriteLine("No Spigot file found in the directory: ""{0}""", MySettings.BuildLocation)
+            Console.WriteLine("Now exiting...")
+            Return -1
+        End If
+        Dim SpigotFile As String = MCDirInfo.GetFiles(SPIGOT_PATTERN).OrderByDescending(Function(F) F).FirstOrDefault().Name
         Try
             File.Copy(Path.Combine(FinalFolderName, SpigotFile), MySettings.SpigotLocation, True)
         Catch Ex As Exception
             Console.WriteLine("Attempted to copy file: {0} to {1}", FinalFolderName & SpigotFile.FirstOrDefault(), MySettings.SpigotLocation)
             Console.WriteLine("Cannot copy file: {0}", Ex.Message)
             Console.ReadLine()
-            Return
+            Return Ex.HResult
         End Try
 
         Console.WriteLine("Outputing XML Information...")
         Dim ThisCurrentBuild = MySettings.CurrentBuild
-        MCUpdateInfo.BuildToolsVersion = ThisCurrentBuild
+        MCUpdateInfo.BuildToolsVersion = ThisCurrentBuild.ToString()
         MCUpdateInfo.MinecraftVersion = SpigotFile.Replace("spigot-", "").Replace(".jar", "")
         MCUpdateInfo.StartMinecraft = DateTime.Now
         MCUpdateInfo.Heartbeat = DateTime.Now
@@ -134,7 +145,7 @@ Copy:
 
         If Not MySettings.StartMinecraft Then
             Console.WriteLine("No more work to do, exiting...")
-            Return
+            Return 0
         End If
 Begin:
         If MCUpdateInfo.MinecraftVersion Is Nothing Then
@@ -174,7 +185,7 @@ Begin:
         Do While True
             If Console.KeyAvailable Then
                 Dim Key As ConsoleKeyInfo = Console.ReadKey(True)
-                If Key.Key Then
+                If Not Key.Key = Nothing Then
                     ExitApplication = True
                     Exit Do
                 End If
@@ -186,10 +197,10 @@ Begin:
             End If
         Loop
         If ExitApplication Then
-            Return
+            Return 0
         End If
         If MySettings.AlwaysCheckForNewBuild Then GoTo Main Else GoTo Begin
-    End Sub
+    End Function
 
     Sub Fetcher_DownloadProgressChanged(ByVal sender As Object, ByVal e As DownloadProgressChangedEventArgs)
         Dim Percent As Double = Math.Round((e.BytesReceived / e.TotalBytesToReceive), 2)
@@ -218,13 +229,14 @@ Begin:
         End If
         Dim Serial As New XmlSerializer(GetType([Info]))
         Dim InfoFile As String = BuildLog
-        Dim WriterSettings As New XmlWriterSettings()
-        WriterSettings.NewLineChars = vbCrLf
-        WriterSettings.NewLineHandling = NewLineHandling.Replace
-        WriterSettings.NewLineOnAttributes = True
-        WriterSettings.WriteEndDocumentOnClose = True
-        WriterSettings.IndentChars = "    "
-        WriterSettings.Indent = True
+        Dim WriterSettings As New XmlWriterSettings() With {
+            .NewLineChars = vbCrLf,
+            .NewLineHandling = NewLineHandling.Replace,
+            .NewLineOnAttributes = True,
+            .WriteEndDocumentOnClose = True,
+            .IndentChars = "    ",
+            .Indent = True
+        }
         Using Writer As New StringWriter()
             Using XMLWriter As XmlWriter = XmlWriter.Create(Writer, WriterSettings)
                 Serial.Serialize(XMLWriter, MCUpdateInfo)
