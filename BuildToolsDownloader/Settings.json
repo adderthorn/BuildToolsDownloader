@@ -1,1 +1,18 @@
-{"BuildInfo":"https://hub.spigotmc.org/jenkins/view/RSS/job/Spigot-RSS/lastSuccessfulBuild/api/xml","BuildTools":"https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar","CurrentBuild":306,"Bash":"C:\\Program Files\\Git\\bin\\bash.exe","BuildLocation":"C:\\","BuildFolderFormat":"MC","RequireUniqueDir":false,"SpigotLocation":"C:\\Minecraft Server\\spigot.jar","StartMinecraft":true,"CurrentBuildFolder":"C:\\MC","JavaArguments":"-Xincgc -Xms1024M -Xmx3072M -XX:MaxPermSize=128M -jar","BuildToolsArguments":"","AlwaysCheckForNewBuild":false,"BuildLog":"build.txt","TimeToReload":5}
+{
+  
+  "BuildInfo": "https://hub.spigotmc.org/jenkins/view/RSS/job/Spigot-RSS/lastSuccessfulBuild/api/xml",
+  "BuildTools": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
+  "CurrentBuild": 306,
+  "Bash": "C:\\Program Files\\Git\\bin\\bash.exe",
+  "BuildLocation": "C:\\",
+  "BuildFolderFormat": "MC",
+  "RequireUniqueDir": false,
+  "SpigotLocation": "C:\\Minecraft Server\\spigot.jar",
+  "StartMinecraft": true,
+  "CurrentBuildFolder": "C:\\MC",
+  "JavaArguments": "-Xincgc -Xms1024M -Xmx3072M -XX:MaxPermSize=128M -jar",
+  "BuildToolsArguments": "",
+  "AlwaysCheckForNewBuild": false,
+  "BuildLog": "build.txt",
+  "TimeToReload": 5
+}
