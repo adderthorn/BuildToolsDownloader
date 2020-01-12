@@ -1,8 +1,7 @@
 {
-  
   "BuildInfo": "https://hub.spigotmc.org/jenkins/view/RSS/job/Spigot-RSS/lastSuccessfulBuild/api/xml",
   "BuildTools": "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar",
-  "CurrentBuild": 306,
+  "CurrentBuild": 444,
   "Bash": "C:\\Program Files\\Git\\bin\\bash.exe",
   "BuildLocation": "C:\\",
   "BuildFolderFormat": "MC",
@@ -14,5 +13,7 @@
   "BuildToolsArguments": "",
   "AlwaysCheckForNewBuild": false,
   "BuildLog": "build.txt",
-  "TimeToReload": 5
+  "TimeToReload": 5,
+  "BuildFileType": 0,
+  "UseJSONBuildOutput": true
 }

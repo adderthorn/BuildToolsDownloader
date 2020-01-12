@@ -23,6 +23,7 @@ Public Class Settings
     Public Property BuildLog As String
     Public Property TimeToReload As Integer
     Public Property BuildFileType As FileOption
+    Public Property UseJSONBuildOutput As Boolean
 
     Public Sub Save(ByVal FilePath As String)
         Dim JsonSettings As String = JsonConvert.SerializeObject(Me, Formatting.Indented)

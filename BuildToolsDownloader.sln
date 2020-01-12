@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29215.179
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "BuildToolsDownloader", "BuildToolsDownloader\BuildToolsDownloader.vbproj", "{6C3F11E4-9F29-4800-9E32-2000393706BC}"
 EndProject

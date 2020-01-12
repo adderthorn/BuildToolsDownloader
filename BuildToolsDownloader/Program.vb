@@ -3,6 +3,7 @@ Option Strict On
 Imports System.Net
 Imports System.IO
 Imports System.Threading
+Imports System.Text
 Imports System.ComponentModel
 Imports System.Xml
 Imports System.Xml.Serialization
@@ -19,7 +20,7 @@ Module Program
     Friend Event DownloadProgressChanged As DownloadProgressChangedEventHandler
     Friend Wait As New ManualResetEvent(False)
     Friend PercentagesShown As New List(Of Double)
-    Friend MCUpdateInfo As New Info()
+    Friend MCUpdateInfo As New UpdateInfo()
     Friend BuildLog As String
 #End Region
 
@@ -227,7 +228,7 @@ Begin:
         If Not Heartbeat = DateTime.MinValue Then
             MCUpdateInfo.Heartbeat = Heartbeat
         End If
-        Dim Serial As New XmlSerializer(GetType([Info]))
+        Dim Serial As New XmlSerializer(GetType([UpdateInfo]))
         Dim InfoFile As String = BuildLog
         Dim WriterSettings As New XmlWriterSettings() With {
             .NewLineChars = vbCrLf,
@@ -235,7 +236,8 @@ Begin:
             .NewLineOnAttributes = True,
             .WriteEndDocumentOnClose = True,
             .IndentChars = "    ",
-            .Indent = True
+            .Indent = True,
+            .Encoding = Encoding.UTF8
         }
         Using Writer As New StringWriter()
             Using XMLWriter As XmlWriter = XmlWriter.Create(Writer, WriterSettings)
@@ -251,17 +253,17 @@ Begin:
         End Using
     End Sub
 
-    Function GetUpdateInfo() As Info
-        If BuildLog Is Nothing Then Return New Info()
-        Dim ThisUpdateInfo As New Info()
+    Function GetUpdateInfo() As UpdateInfo
+        If BuildLog Is Nothing Then Return New UpdateInfo()
+        Dim ThisUpdateInfo As New UpdateInfo()
         Dim InfoFile As String = BuildLog
         If Not File.Exists(InfoFile) Then
             Main(New String() {"force-update"})
-            Return New Info()
+            Return New UpdateInfo()
         End If
         Using InfoReader As New StreamReader(InfoFile)
-            Dim Serial As New XmlSerializer(GetType([Info]))
-            ThisUpdateInfo = CType(Serial.Deserialize(InfoReader), Info)
+            Dim Serial As New XmlSerializer(GetType([UpdateInfo]))
+            ThisUpdateInfo = CType(Serial.Deserialize(InfoReader), UpdateInfo)
             InfoReader.Close()
         End Using
         Return ThisUpdateInfo
